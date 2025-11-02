@@ -1,39 +1,45 @@
-importar { Terminal } desde "@es-js/terminal"
-importar { obtenerJson } desde "https://desarrollo-aplicaciones.vercel.app/2024/code/obtener-json.js"
-importar { validarSecreto } desde "https://desarrollo-aplicaciones.vercel.app/2024/code/validar-secreto.js"
+// ...existing code...
+import { Terminal } from "@es-js/terminal"
+import { obtenerJson } from "https://desarrollo-aplicaciones.vercel.app/2024/code/obtener-json.js"
+import { validarSecreto } from "https://desarrollo-aplicaciones.vercel.app/2024/code/validar-secreto.js"
 
-asincrono funcion inicio() {
+async function inicio() {
   Terminal.escribir("Hola! Ingresa la palabra secreta:")
+  const secreto = await Terminal.leer()
+  const dni = "45425298"
 
-  var secreto = esperar Terminal.leer()
-
-  var dni = "45425298" 
-
-  si (esperar validarSecreto(dni, secreto)) {
-    esperar mostrarCotizacion()
-  } sino {
-    Terminal.escribir(" Palabra secreta inválida")
+  try {
+    if (await validarSecreto(dni, secreto)) {
+      await mostrarCotizacion()
+    } else {
+      Terminal.escribir("Palabra secreta inválida")
+    }
+  } catch (err) {
+    Terminal.escribir("Error: " + err.message)
   }
 
   Terminal.escribir("\nPresiona ENTER para volver a ingresar")
-
-  esperar Terminal.leerEnter()
-
+  await Terminal.leerEnter()
   Terminal.limpiar()
-
   inicio()
 }
 
-asincrono funcion mostrarCotizacion() {
+async function mostrarCotizacion() {
   Terminal.escribir("Obteniendo cotización del Dólar Blue... ")
 
-  var url = "https://dolarapi.com/v1/dolares/blue"
-  var datos = esperar obtenerJson(url)
+  const url = "https://dolarapi.com/v1/dolares/blue"
+  let datos
+  try {
+    datos = await obtenerJson(url)
+  } catch (err) {
+    Terminal.escribir("No se pudo obtener la cotización: " + err.message)
+    return
+  }
 
-  var compra = datos.compra
-  var venta = datos.venta
-  var promedio = (compra + venta) / 2
-  var fecha = new Date(datos.fechaActualizacion).toLocaleString("es-AR")
+  const compra = Number(datos.compra)
+  const venta = Number(datos.venta)
+  const promedio = (compra + venta) / 2
+  const fecha = new Date(datos.fechaActualizacion).toLocaleString("es-AR")
 
   Terminal.escribir("\n Cotización del Dólar Blue en Argentina:")
   Terminal.escribir("-------------------------------------------")
@@ -45,3 +51,4 @@ asincrono funcion mostrarCotizacion() {
 }
 
 inicio()
+// ...existing code...
